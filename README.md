@@ -21,3 +21,15 @@ Pour exécuter le projet :
 ```
 flask run
 ```
+
+## Initialisation de la base de données
+
+Dans un interpréteur Python :
+
+```
+from flask_app import model
+connection = model.connect()
+model.create_database(connection)
+model.fill_database(connection)
+model.update_ranking(connection)
+```
