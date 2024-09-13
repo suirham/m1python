@@ -1,4 +1,5 @@
 from flask_app import ranking
+from flask_app import data
 
 match0 = {'id' : 123, 'team0' : 1, 'team1' : 3, 'score0' : 3, 'score1' : 5, 'date' : '2048-01-01 00:00:00'}
 match1 = {'id' : 231, 'team0' : 4, 'team1' : 2, 'score0' : 2, 'score1' : 2, 'date' : '2048-01-01 00:00:00'}
@@ -69,3 +70,8 @@ def test_goal_against_during_a_match():
     assert ranking.goal_against_count_during_a_match(3, match2) == 3
     assert ranking.goal_against_count_during_a_match(2, match2) == 1
     assert ranking.goal_against_count_during_a_match(4, match0) == 0
+
+
+def test_goal_for_count():
+  for row in data.expected_sorted_ranking():
+    assert ranking.goal_for_count(row['team_id'], data.matches()) == row['goal_for_count']

@@ -34,7 +34,10 @@ def goal_against_count_during_a_match(team_id, match):
 
 
 def goal_for_count(team_id, matches):
-  return 0
+  result = 0
+  for match in matches:
+    result += goal_for_count_during_a_match(team_id, match)
+  return result
 
 
 def goal_against_count(team_id, matches):
