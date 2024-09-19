@@ -75,3 +75,28 @@ def test_goal_against_during_a_match():
 def test_goal_for_count():
   for row in data.expected_sorted_ranking():
     assert ranking.goal_for_count(row['team_id'], data.matches()) == row['goal_for_count']
+
+
+def test_goal_against_count():
+  for row in data.expected_sorted_ranking():
+    assert ranking.goal_against_count(row['team_id'], data.matches()) == row['goal_against_count']
+
+
+def test_won_match_count():
+  for row in data.expected_sorted_ranking():
+    assert ranking.won_match_count(row['team_id'], data.matches()) == row['won_match_count']
+
+
+def test_lost_match_count():
+  for row in data.expected_sorted_ranking():
+    assert ranking.lost_match_count(row['team_id'], data.matches()) == row['lost_match_count']
+
+  
+def test_draw_count():
+  for row in data.expected_sorted_ranking():
+    assert ranking.draw_count(row['team_id'], data.matches()) == row['draw_count']
+
+
+def test_ranking_row():
+  for row in data.expected_unsorted_ranking():
+    assert ranking.ranking_row(row['team_id'], data.matches()) == row
