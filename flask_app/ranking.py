@@ -34,10 +34,11 @@ def goal_against_count_during_a_match(team_id, match):
 
 
 def goal_for_count(team_id, matches):
-  result = 0
-  for match in matches:
-    result += goal_for_count_during_a_match(team_id, match)
-  return result
+  return sum(goal_for_count_during_a_match(team_id, match) for match in matches)
+  #result = 0
+  #for match in matches:
+  #  result += goal_for_count_during_a_match(team_id, match)
+  #return result
 
 
 def goal_against_count(team_id, matches):
@@ -89,12 +90,25 @@ def ranking_row(team_id, matches):
 
 
 def unsorted_ranking(teams, matches):
-  return []
+  return [ranking_row(team['id'], matches) for team in teams]
+  result = []
+  for team in teams:
+    row = ranking_row(team['id'], matches)
+    result.append(row)
+  return result
 
 
 def sorting_key(row):
-  return (0, 0, 0)
+  return (row['points'], 
+          row['goal_difference'], 
+          row['goal_for_count'])
 
 
 def sorted_ranking(teams, matches):
-  return []
+  ranking = unsorted_ranking(teams, matches)
+  ranking = sorted(ranking, key=sorting_key, reverse=True)
+  rank = 1
+  for row in ranking:
+    row['rank'] = rank
+    rank+=1
+  return ranking
