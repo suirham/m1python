@@ -114,32 +114,52 @@ def draw_count(team_id, matches):
 
 
 def ranking_row(team_id, matches):
-  teams = data.teams()
-  # for row in matches:
-  #   dico. = {}
-  match_played_count = 0
-  x = 0
   for row in matches:
-    if team_id == matches[x]['team0'] or team_id == matches[x]['team1'] : match_played_count += 1
-    x += 1
-    return {'team_id': teams[team_id], 
-            'match_played_count': match_played_count, 
-            'won_match_count': won_match_count(team_id, matches), 
-            'lost_match_count': lost_match_count(team_id, matches), 
-            'draw_count': draw_count(team_id, matches), 
-            'goal_for_count': goal_for_count(team_id, matches), 
-            'goal_against_count': goal_against_count(team_id, matches), 
-            'goal_difference': goal_for_count(team_id, matches) - goal_against_count(team_id, matches), 
-            'points': points(won_match_count(team_id, matches), draw_count(team_id, matches)) }
+    r01 = team_id
+    r03 = won_match_count(team_id, matches)
+    r04 = lost_match_count(team_id, matches)
+    r05 = draw_count(team_id, matches)
+    r06 = goal_for_count(team_id, matches)
+    r07 = goal_against_count(team_id, matches)
+    r08 = goal_for_count(team_id, matches) - goal_against_count(team_id, matches)
+    r09 = points(won_match_count(team_id, matches), draw_count(team_id, matches))
+    r02 = r03 + r04 + r05
+    result = {'team_id': r01, 
+            'match_played_count': r02, 
+            'won_match_count': r03, 
+            'lost_match_count': r04, 
+            'draw_count': r05, 
+            'goal_for_count': r06, 
+            'goal_against_count': r07, 
+            'goal_difference': r08, 
+            'points': r09}
+    return result
+    
 
 
 def unsorted_ranking(teams, matches):
-  return []
+  result = []
+  for team in teams:
+    row = ranking_row(team['id'], matches)
+    result.append(row)
+  return result
 
 
 def sorting_key(row):
-  return (0, 0, 0)
+  return (row['points'], row['goal_difference'], row['goal_for_count'])
 
 
 def sorted_ranking(teams, matches):
-  return []
+  ranking = unsorted_ranking(teams, matches)
+  ranking = sorted(ranking, key=sorting_key, reverse=True)
+  rank = 1
+  for row in ranking:
+    row['rank'] = rank
+    rank += 1
+  return ranking
+
+# def sorted_ranking_with_names(teams, ranking):
+#   result = []
+#   for row in ranking:
+    
+#   return result

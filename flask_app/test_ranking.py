@@ -82,5 +82,15 @@ def test_draw_count():
 
 def test_ranking_row():
   for row in data.expected_unsorted_ranking():
-    # print (row)
     assert ranking.ranking_row(row['team_id'], data.matches()) == row
+
+def test_unsorted_ranking():
+  assert ranking.unsorted_ranking(data.teams(), data.matches()) == data.expected_unsorted_ranking()
+
+def test_sorting_key():
+  for row in data.expected_sorted_ranking():
+    assert ranking.sorting_key(row) == (row['points'], row['goal_difference'], row['goal_for_count'])
+
+def test_sorted_ranking():
+  assert ranking.sorted_ranking(data.teams(), data.matches()) == data.expected_sorted_ranking()
+
