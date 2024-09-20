@@ -1,3 +1,4 @@
+import pytest
 from flask_app import model
 from flask_app import data
 
@@ -54,3 +55,20 @@ def test_team_matches():
   model.create_database(connection)
   model.fill_database(connection)
   assert model.team_matches(connection, 4) == data.expected_team_matches_for_team_4()
+
+
+def test_team():
+   connection = model.connect(":memory:")
+   model.create_database(connection)
+   model.fill_database(connection)
+   teams = data.teams()
+   assert model.team(connection, 4) == teams[3]
+
+
+def test_team_exception():
+    connection = model.connect(":memory:")
+    model.create_database(connection)
+    model.fill_database(connection)
+    with pytest.raises(Exception) as exception_info:
+        model.team(connection, 1000)
+    assert str(exception_info.value) == 'Équipe inconnue'
