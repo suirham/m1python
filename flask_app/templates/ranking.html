@@ -18,7 +18,7 @@
             {% for row in ranking %}
             <tr>
                 <td>{{ row.rank }}</td>
-                <td>{{ row.name }}</td>
+                <td><a href="/team/{{ row.team_id }}">{{ row.name }}</a></td>
                 <td>{{ row.match_played_count }}</td>
                 <td>{{ row.won_match_count }}</td>
                 <td>{{ row.draw_count }}</td>

@@ -15,4 +15,6 @@ def home():
 
 @app.route('/team/<int:team_id>', methods=['GET'])
 def team(team_id):
-    return 'Team {0}'.format(team_id)
+    connection = model.connect()
+    matches = model.team_matches(connection, team_id)
+    return render_template('team.html', matches=matches)

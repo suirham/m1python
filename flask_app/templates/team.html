@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+    <head></head>
+    <body>
+        <table>
+            {% for match in matches %}
+            <tr>
+                <td>{{ match.date }}</td>
+                <td><a href="/team/{{ match.team0 }}">{{ match.name0 }}</a></td>
+                <td>{{ match.score0 }} - {{ match.score1 }}</td>
+                <td><a href="/team/{{ match.team1 }}">{{ match.name1 }}</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
