@@ -112,8 +112,7 @@ def team(connection, team_id):
     SELECT * FROM teams
     WHERE id = :team_id
   '''
-  cursor = connection.execute(sql, 
-                              {'team_id': team_id})
+  cursor = connection.execute(sql, {'team_id': team_id})
   teams = cursor.fetchall()
   if len(teams)==0:
     raise Exception('Équipe inconnue')
