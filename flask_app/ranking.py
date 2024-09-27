@@ -1,143 +1,96 @@
-from flask_app import data
-
 def goal_difference(goal_for_count, goal_against_count):
   return goal_for_count - goal_against_count
 
 
 def points(won_match_count, draw_count):
-  return draw_count + 3 * won_match_count
+  return 3*won_match_count + draw_count
 
 
 def team_wins_match(team_id, match):
-  # match0 = {'id' : 123, 'team0' : 1, 'team1' : 3, 'score0' : 3, 'score1' : 5, 'date' : '2048-01-01 00:00:00'}
-  # match1 = {'id' : 231, 'team0' : 4, 'team1' : 2, 'score0' : 2, 'score1' : 2, 'date' : '2048-01-01 00:00:00'}
-  # match2 = {'id' : 222, 'team0' : 3, 'team1' : 2, 'score0' : 1, 'score1' : 3, 'date' : '2048-01-01 00:00:00'}
-  if match['team0'] == team_id or match['team1'] == team_id :
-    score = match['score0'] - match['score1']
-    # print (score)
-    if team_id == match['team0'] and score > 0 or team_id == match['team1'] and score < 0:
-      return True
-    else:
-      return False
-  return False
+  return (match['team0'] == team_id and match['score0'] > match['score1']) \
+      or (match['team1'] == team_id and match['score1'] > match['score0'])
 
 
 def team_loses_match(team_id, match):
-  if match['team0'] == team_id or match['team1'] == team_id :
-    score = match['score0'] - match['score1']
-    if team_id == match['team0'] and score < 0 or team_id == match['team1'] and score > 0:
-      return True
-    else:
-      return False
-  return False
+  return (match['team0'] == team_id and match['score0'] < match['score1']) \
+      or (match['team1'] == team_id and match['score1'] < match['score0'])
 
 
 def team_draws_match(team_id, match):
-  if match['team0'] == team_id or match['team1'] == team_id :
-    score = match['score0'] - match['score1']
-    if score == 0 :
-      return True
-    else:
-      return False
-  return False
+  return (match['team0'] == team_id or match['team1'] == team_id) \
+     and (match['score0'] == match['score1'])
 
 
 def goal_for_count_during_a_match(team_id, match):
-  if match['team0'] == team_id : return match['score0']
-  elif match['team1'] == team_id : return match['score1']
-  return 0
+  return match['score0'] if match['team0'] == team_id \
+    else match['score1'] if match['team1'] == team_id \
+    else 0
 
 
 def goal_against_count_during_a_match(team_id, match):
-  if match['team0'] == team_id : return match['score1']
-  elif match['team1'] == team_id : return match['score0']
-  return 0
+  return match['score1'] if match['team0'] == team_id \
+    else match['score0'] if match['team1'] == team_id \
+    else 0
 
 
 def goal_for_count(team_id, matches):
-  matches = data.matches()
-  total = 0
-  x = 0
-  for row in data.matches(): 
-    if matches[x]['team0'] == team_id : total += goal_for_count_during_a_match(team_id, matches[x])
-    elif matches[x]['team1'] == team_id : total += goal_for_count_during_a_match(team_id, matches[x])
-    x += 1
-  
-  return total
+  return sum(goal_for_count_during_a_match(team_id, match) for match in matches)
+  #result = 0
+  #for match in matches:
+  #  result += goal_for_count_during_a_match(team_id, match)
+  #return result
+
 
 def goal_against_count(team_id, matches):
-  matches = data.matches()
-  total = 0
-  x = 0
-  for row in data.matches(): 
-    if matches[x]['team0'] == team_id : total += goal_against_count_during_a_match(team_id, matches[x])
-    elif matches[x]['team1'] == team_id : total += goal_against_count_during_a_match(team_id, matches[x])
-    x += 1
-  
-  return total
+  result = 0
+  for match in matches:
+    result += goal_against_count_during_a_match(team_id, match)
+  return result
 
 
 def won_match_count(team_id, matches):
-  matches = data.matches()
-  total = 0
-  x = 0
-  for row in data.matches(): 
-    if matches[x]['team0'] == team_id : total += team_wins_match(team_id, matches[x])
-    elif matches[x]['team1'] == team_id : total += team_wins_match(team_id, matches[x])
-    x += 1
-  
-  return total
+  result = 0
+  for match in matches:
+    result += team_wins_match(team_id, match)
+  return result
 
 
 def lost_match_count(team_id, matches):
-  matches = data.matches()
-  total = 0
-  x = 0
-  for row in data.matches(): 
-    if matches[x]['team0'] == team_id : total += team_loses_match(team_id, matches[x])
-    elif matches[x]['team1'] == team_id : total += team_loses_match(team_id, matches[x])
-    x += 1
-  
-  return total
+  result = 0
+  for match in matches:
+    result += team_loses_match(team_id, match)
+  return result
 
 
 def draw_count(team_id, matches):
-  matches = data.matches()
-  total = 0
-  x = 0
-  for row in data.matches(): 
-    if matches[x]['team0'] == team_id : total += team_draws_match(team_id, matches[x])
-    elif matches[x]['team1'] == team_id : total += team_draws_match(team_id, matches[x])
-    x += 1
-  
-  return total
+  result = 0
+  for match in matches:
+    result += team_draws_match(team_id, match)
+  return result
 
 
 def ranking_row(team_id, matches):
-  for row in matches:
-    r01 = team_id
-    r03 = won_match_count(team_id, matches)
-    r04 = lost_match_count(team_id, matches)
-    r05 = draw_count(team_id, matches)
-    r06 = goal_for_count(team_id, matches)
-    r07 = goal_against_count(team_id, matches)
-    r08 = goal_for_count(team_id, matches) - goal_against_count(team_id, matches)
-    r09 = points(won_match_count(team_id, matches), draw_count(team_id, matches))
-    r02 = r03 + r04 + r05
-    result = {'team_id': r01, 
-            'match_played_count': r02, 
-            'won_match_count': r03, 
-            'lost_match_count': r04, 
-            'draw_count': r05, 
-            'goal_for_count': r06, 
-            'goal_against_count': r07, 
-            'goal_difference': r08, 
-            'points': r09}
-    return result
-    
+  won_match_count_ = won_match_count(team_id, matches)
+  lost_match_count_ = lost_match_count(team_id, matches)
+  draw_count_ = draw_count(team_id, matches)
+  match_played_count_ = won_match_count_ + lost_match_count_ + draw_count_
+  goal_for_count_ = goal_for_count(team_id, matches)
+  goal_against_count_ = goal_against_count(team_id, matches)
+  goal_difference_ = goal_difference(goal_for_count_, goal_against_count_)
+  points_ = points(won_match_count_, draw_count_)
+  return {'team_id': team_id, 
+          'match_played_count': match_played_count_,
+          'won_match_count': won_match_count_, 
+          'lost_match_count': lost_match_count_, 
+          'draw_count': draw_count_, 
+          'goal_for_count': goal_for_count_, 
+          'goal_against_count': goal_against_count_, 
+          'goal_difference': goal_difference_, 
+          'points': points_}
 
 
 def unsorted_ranking(teams, matches):
+  return [ranking_row(team['id'], matches) for team in teams]
   result = []
   for team in teams:
     row = ranking_row(team['id'], matches)
@@ -146,7 +99,9 @@ def unsorted_ranking(teams, matches):
 
 
 def sorting_key(row):
-  return (row['points'], row['goal_difference'], row['goal_for_count'])
+  return (row['points'], 
+          row['goal_difference'], 
+          row['goal_for_count'])
 
 
 def sorted_ranking(teams, matches):
@@ -155,11 +110,5 @@ def sorted_ranking(teams, matches):
   rank = 1
   for row in ranking:
     row['rank'] = rank
-    rank += 1
+    rank+=1
   return ranking
-
-# def sorted_ranking_with_names(teams, ranking):
-#   result = []
-#   for row in ranking:
-    
-#   return result

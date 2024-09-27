@@ -7,4 +7,4 @@ flask_session
 .env
 venv
 .venv
-*.local
+.vscode
