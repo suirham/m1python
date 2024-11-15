@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Nouvelle commande{% endblock %}
+{% block content %}
+<form method="POST">
+    <div class="mb-3">
+      <label class="form-label" for="basket">Panier</label>
+        {{ form.basket(class_="form-select", id="basket") }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="quantity">Quantité</label>
+      {{ form.quantity(class_="form-control", id="quantity") }}
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="quantity">Date</label>
+    {{ form.jour(class_="form-control", id="jour") }}
+</div>
+  <button type="submit" class="btn btn-primary">Valider la Commande</button>
+  {{ form.csrf_token }}
+</form>
+{% endblock %}

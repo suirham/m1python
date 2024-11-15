@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Création d'un utilisateur{% endblock %}
+{% block content %}
+<form method='POST'>
+    {% if request.method == 'POST' %}
+    <div class="alert alert-warning">
+        Le nouvel utilisateur n'a pas pu être créé &#9785;
+    </div>
+    {% endif %}
+    <div class="mb-3">
+      <label for="email" class="form-label">E-mail</label>
+      {{ form.email(id='email', class_ = 'form-control') }}
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Mot de passe</label>
+      {{ form.password(id='password', class_ = 'form-control') }}
+    </div>
+    <div class="mb-3">
+      <label for="confirm" class="form-label">Confirmation</label>
+      {{ form.confirm(id='confirm', class_ = 'form-control') }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Statut</label><br>
+      {% if activity is defined and activity == "agriculteur" %}
+      <div class="form-check form-check-inline">
+        {{ form.activity(class_="form-check-input", type="radio", id="agriculteur", value="agriculteur") }}
+        <label class="form-check-label" for="active">agriculteur</label>
+      </div>
+      {% endif %}
+      <div class="form-check form-check-inline">
+        {{ form.activity(class_="form-check-input", type="radio", id="consommateur", value="consommateur") }}
+        <label class="form-check-label" for="inactive">consommateur</label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+    {{ form.csrf_token }}
+</form>
+{% endblock %}

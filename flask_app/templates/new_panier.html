@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Nouvelle commande{% endblock %}
+{% block content %}
+<form method="POST">
+    <div class="mb-3">
+      <label class="form-label" for="basket">Nom du Panier</label>
+        {{ form.title(class_="form-control", id="title") }}
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="basket">Description du Panier</label>
+        {{ form.information(class_="form-control", id="information") }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="quantity">Prix du Panier</label>
+        {{ form.price(class_="form-control", id="price") }}
+    </div>
+  <button type="submit" class="btn btn-primary">Valider la Panier</button>
+  {{ form.csrf_token }}
+</form>
+{% endblock %}

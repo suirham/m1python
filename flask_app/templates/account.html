@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+{% block content %}
+
+{% if activity == 'agriculteur' %}
+<!-- {{activity}} -->
+<h2>Liste des paniers émis</h2>
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <!-- <th>id</th> -->
+            <th>Paniers</th>
+            <th>info</th>
+            <th>prix</th>
+            <!-- <th>author</th> -->
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in basket_list_user %}
+        <tr>
+            <!-- <td>{{ row.id }}</td> -->
+            <td><a href="/panier/{{row.id}}">{{ row.title }}</a></td>
+            <td>{{ row.information }}</td>
+            <td>{{ row.price }}</td>
+            <!-- <td>{{ row.creator }}</td> -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+
+<h2>Liste des commandes passées</h2>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>commande n°</th>
+            <!-- <th>sponsor</th> -->
+            <th>Nom du Panier</th>
+            <th>Nombre</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for reserv in basket_commande_user %}
+        <tr>
+            <td>{{ reserv.id }}</td>
+            <!-- <td>{{ reserv.sponsor }}</a></td> -->
+            <td> <a href="/panier/r/{{ reserv.basket }}"> {{ reserv.basket }}</a></td>
+            <td>{{ reserv.quantity }}</td>
+            <td>{{ reserv.jour }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if activity == 'agriculteur' %}
+<h2>Liste des commandes à satisfaire</h2>
+
+<div>
+    <canvas id="myChart"></canvas>
+</div>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>commande n°</th>
+            <th>Commanditaire</th>
+            <!-- <th>sponsor</th> -->
+            <th>Nom du Panier</th>
+            <th>Nombre</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for todo in command_todo %}
+        <tr>
+            <td>{{ todo.id }}</td>
+            <td>{{ todo.sponsor }}</a></td>
+            <td> <a href="/panier/r/{{ todo.basket }}"> {{ todo.basket }}</a></td>
+            <td>{{ todo.quantity }}</td>
+            <td>{{ todo.jour }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+<script>
+    // Charger les données depuis Flask via Jinja2
+    const commandTodo = JSON.parse('{{ command_todo | tojson | safe }}');
+
+    // Regrouper les données par panier (clé 'basket') et date
+    const groupedData = commandTodo.reduce((acc, todo) => {
+        if (!acc[todo.basket]) {
+            acc[todo.basket] = {};
+        }
+        const dateKey = new Date(todo.jour).toISOString().split('T')[0]; // Clé pour regrouper par date (YYYY-MM-DD)
+
+        if (!acc[todo.basket][dateKey]) {
+            acc[todo.basket][dateKey] = {
+                x: new Date(todo.jour), // Date
+                y: 0,                  // Quantité initialisée à 0
+                sponsors: new Set()    // Utilisation d'un Set pour éviter les doublons
+            };
+        }
+        acc[todo.basket][dateKey].y += todo.quantity; // Ajouter la quantité
+        acc[todo.basket][dateKey].sponsors.add(todo.sponsor); // Ajouter le sponsor (pas de doublons grâce au Set)
+        return acc;
+    }, {});
+
+    // Générer les datasets dynamiquement et trier par date
+    const datasets = Object.keys(groupedData).map((basket, index) => {
+        // Convertir les objets regroupés en tableau et trier par date
+        const dataPoints = Object.values(groupedData[basket])
+            .sort((a, b) => a.x - b.x) // Trier par date (croissant)
+            .map(entry => ({
+                x: entry.x,
+                y: entry.y,
+                sponsors: Array.from(entry.sponsors).join(', ') // Convertir le Set en une liste de sponsors
+            }));
+
+        return {
+            label: basket, // Nom du panier comme étiquette
+            data: dataPoints, // Données associées au panier
+            borderColor: `hsl(${(index * 60) % 360}, 70%, 50%)`,
+            backgroundColor: `hsla(${(index * 60) % 360}, 70%, 50%, 0.3)`
+        };
+    });
+
+    // Configuration du graphique
+    const config = {
+        type: 'line',
+        data: {
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day' // Unité pour les dates
+                    },
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Quantité'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Commandes à satisfaire'
+                },
+                tooltip: {
+                    callbacks: {
+                        // Personnalisation des infobulles
+                        label: function(context) {
+                            const sponsors = context.raw.sponsors; // Récupérer la liste des sponsors
+                            return [
+                                `Quantité : ${context.raw.y}`,  // Affiche la quantité
+                                `Commanditaires : ${sponsors}` // Liste des sponsors
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Création du graphique
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, config);
+</script>
+
+
+{% endblock %}

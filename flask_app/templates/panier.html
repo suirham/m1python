@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Panier{% endblock %}
+{% block content %}
+
+<h2>Panier n° {{ detail_panier['id'] }} -- {{ detail_panier['title'] }}</h2>
+<h4>Prix : {{ detail_panier['price'] }} € <br><br></h4>
+<h2>Description :</h2>
+<b>{{ detail_panier['information'] }} <br><br><br></b>
+<h5 style="margin-top: 50px;">Crée par {{ detail_panier['creator'] }}</h5>
+
+{% endblock %}

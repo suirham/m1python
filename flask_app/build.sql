@@ -1,35 +1,31 @@
-DROP TABLE IF EXISTS ranking;
-DROP TABLE IF EXISTS matches;
-DROP TABLE IF EXISTS teams;
 
-CREATE TABLE teams(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name VARCHAR(50) NOT NULL
-);
+DROP TABLE IF EXISTS reservations;
+DROP TABLE IF EXISTS basket_vegetables;
+DROP TABLE IF EXISTS users;
 
-CREATE TABLE matches(
+CREATE TABLE users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team0 INTEGER NOT NULL,
-    team1 INTEGER NOT NULL,
-    score0 INTEGER NOT NULL,
-    score1 INTEGER NOT NULL,
-    date DATETIME NOT NULL,
-    FOREIGN KEY (team0) REFERENCES teams(id),
-    FOREIGN KEY (team1) REFERENCES teams(id),
-    CHECK (team0 != team1),
-    UNIQUE (team0, team1)
+    email VARCHAR(128) NOT NULL UNIQUE,
+    password_hash VARCHAR(128) NOT NULL,
+    activity VARCHAR(15) NOT NULL,
+    totp varchar(32)
 );
 
-CREATE TABLE ranking(
-    rank INTEGER NOT NULL PRIMARY KEY, 
-    team_id INTEGER NOT NULL UNIQUE, 
-    match_played_count INTEGER NOT NULL, 
-    won_match_count INTEGER NOT NULL, 
-    lost_match_count INTEGER NOT NULL, 
-    draw_count INTEGER NOT NULL, 
-    goal_for_count INTEGER NOT NULL, 
-    goal_against_count INTEGER NOT NULL, 
-    goal_difference INTEGER NOT NULL, 
-    points INTEGER NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teams(id)
+CREATE TABLE basket_vegetables(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR(50) NOT NULL UNIQUE,
+    information VARCHAR(128) NOT NULL,
+    price INTEGER NOT NULL,
+    creator VARCHAR(128) NOT NULL,
+    FOREIGN KEY (creator) REFERENCES users(email)
+);
+
+CREATE TABLE reservations(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sponsor VARCHAR(128) NOT NULL,
+    basket VARCHAR(50) NOT NULL,
+    quantity INTEGER NOT NULL,
+    jour date not null, 
+    FOREIGN KEY (sponsor) REFERENCES users(email)
+    FOREIGN KEY (basket) REFERENCES basket_vegetables(title)
 );

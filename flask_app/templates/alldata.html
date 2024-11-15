@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}ALLDATA{% endblock %}
+{% block content %}
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>id</th>
+            <th>Basket</th>
+            <th>info</th>
+            <th>price</th>
+            <th>author</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in basket_list %}
+        <!-- <tr class="{{ 'table-primary' if followed_team == row['team_id'] else ''}}"> -->
+        <tr>
+            <td>{{ row.id }}</td>
+            <!-- <td><a href="/team/{{ row.team_id }}">{{ row.title }}</a></td> -->
+            <td>{{ row.title }}</a></td>
+            <td>{{ row.information }}</td>
+            <td>{{ row.price }}</td>
+            <td>{{ row.creator }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>id</th>
+            <th>email</th>
+            <th>password_hash</th>
+            <th>activity</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in user_list %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.email }}</a></td>
+            <td>{{ user.password_hash }}</td>
+            <td>{{ user.activity }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>id</th>
+            <th>sponsor</th>
+            <th>basket</th>
+            <th>activity</th>
+            <th>date</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for reserv in reservation_list %}
+        <tr>
+            <td>{{ reserv.id }}</td>
+            <td>{{ reserv.sponsor }}</a></td>
+            <td>{{ reserv.basket }}</td>
+            <td>{{ reserv.quantity }}</td>
+            <td>{{ reserv.jour }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

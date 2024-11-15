@@ -1,93 +1,65 @@
 import pytest
 from flask_app import model
-from flask_app import data
 
-def test_teams_and_insert_team():
+
+def test_add_and_get_user():
     connection = model.connect(":memory:")
     model.create_database(connection)
-    teams = data.teams()
-    model.insert_team(connection, teams[4])
-    model.insert_team(connection, teams[2])
-    assert model.teams(connection) == [teams[2], teams[4]]
+    model.add_user(connection, 'test1@example.com', '1Secret1234**')
+    model.add_user(connection, 'test2@example.com', '2Secret1234**')
+    user1 = model.get_user(connection, 'test1@example.com', '1Secret1234**')
+    user2 = model.get_user(connection, 'test2@example.com', '2Secret1234**')
+    assert user1 == {'id' : 1, 'email' : 'test1@example.com'}
+    assert user2 == {'id' : 2, 'email' : 'test2@example.com'}
 
 
-def test_matches_and_insert_match():
+def test_get_user_exception():
     connection = model.connect(":memory:")
     model.create_database(connection)
-    teams = data.teams()
-    matches = data.matches()
-    model.insert_team(connection, teams[7])
-    model.insert_team(connection, teams[19])
-    model.insert_match(connection, matches[194])
-    model.insert_match(connection, matches[4])
-    assert model.matches(connection) == [matches[4], matches[194]]
-
-
-def test_fill_database():
-    connection = model.connect(":memory:")
-    model.create_database(connection)
-    model.fill_database(connection)
-    assert model.teams(connection) == data.teams()
-    assert model.matches(connection) == data.matches()
-
-
-def test_update_ranking():
-  connection = model.connect(":memory:")
-  model.create_database(connection)
-  model.update_ranking(connection)
-  model.fill_database(connection)
-  model.update_ranking(connection)
-  model.update_ranking(connection)
-  cursor = connection.execute("SELECT * from ranking ORDER BY rank")
-  assert list(cursor) == data.expected_sorted_ranking()
-
-
-def test_sorted_ranking():
-  connection = model.connect(":memory:")
-  model.create_database(connection)
-  model.fill_database(connection)
-  model.update_ranking(connection)
-  assert model.sorted_ranking(connection) == data.expected_sorted_ranking_with_name()
-
-
-def test_team_matches():
-  connection = model.connect(":memory:")
-  model.create_database(connection)
-  model.fill_database(connection)
-  assert model.team_matches(connection, 4) == data.expected_team_matches_for_team_4()
-
-
-def test_team():
-   connection = model.connect(":memory:")
-   model.create_database(connection)
-   model.fill_database(connection)
-   teams = data.teams()
-   assert model.team(connection, 4) == teams[3]
-
-
-def test_team_exception():
-    connection = model.connect(":memory:")
-    model.create_database(connection)
-    model.fill_database(connection)
+    model.add_user(connection, 'test@example.com', 'Secret1234**')
     with pytest.raises(Exception) as exception_info:
-        model.team(connection, 1000)
-    assert str(exception_info.value) == 'Équipe inconnue'
+        model.get_user(connection, 'test1@example.com', 'Secret1234**')
+    assert str(exception_info.value) == 'Utilisateur inconnu'
+    with pytest.raises(Exception) as exception_info:
+        model.get_user(connection, 'test@example.com', '1Secret1234**')
+    assert str(exception_info.value) == 'Utilisateur inconnu'
+    with pytest.raises(Exception) as exception_info:
+        model.get_user(connection, 'test1@example.com', '1Secret1234**')
+    assert str(exception_info.value) == 'Utilisateur inconnu'
 
 
-def test_ranking_row():
-  connection = model.connect(":memory:")
-  model.create_database(connection)
-  model.fill_database(connection)
-  model.update_ranking(connection)
-  for row in data.expected_sorted_ranking_with_name():
-      assert model.ranking_row(connection, row['team_id']) == row
-
-
-def test_ranking_row_exception():
+def test_add_user_email_unique():
     connection = model.connect(":memory:")
     model.create_database(connection)
-    model.fill_database(connection)
-    model.update_ranking(connection)
+    model.create_database(connection)
+    model.add_user(connection, 'test1@example.com', '1Secret1234**')
     with pytest.raises(Exception) as exception_info:
-        model.ranking_row(connection, 1000)
-    assert str(exception_info.value) == 'Équipe inconnue'
+        model.add_user(connection, 'test1@example.com', '2Secret1234**')
+    assert str(exception_info.value) == 'UNIQUE constraint failed: users.email'
+
+
+def test_change_password():
+    connection = model.connect(":memory:")
+    model.create_database(connection)
+    model.add_user(connection, 'test@example.com', '1Secret1234**')
+    model.change_password(connection, 'test@example.com', '1Secret1234**', '2Secret1234**')
+    user = model.get_user(connection, 'test@example.com', '2Secret1234**')
+    assert user == {'id' : 1, 'email' : 'test@example.com'}
+    with pytest.raises(Exception) as exception_info:
+        model.get_user(connection, 'test@example.com', '1Secret1234**')
+    assert str(exception_info.value) == 'Utilisateur inconnu'
+
+
+def test_change_password_old_password_check():
+    connection = model.connect(":memory:")
+    model.create_database(connection)
+    model.add_user(connection, 'test@example.com', '1Secret1234**')
+    with pytest.raises(Exception) as exception_info:
+        model.change_password(connection, 'test@example.com', '2Secret1234**', '3Secret1234**')
+    assert str(exception_info.value) == 'Utilisateur inconnu'
+
+
+def test_check_password_strength_length():
+    with pytest.raises(Exception) as exception_info:
+        model.check_password_strength('aaa')
+    assert str(exception_info.value) == 'Mot de passe trop court'

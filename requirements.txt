@@ -11,3 +11,4 @@ passlib
 Flask-Session
 pyotp
 talisman
+flask-qrcode
